@@ -1,0 +1,52 @@
+sudo apt install git-lfs
+git lfs install
+
+git config --global user.name "prazen-git"
+git config --global user.email "mspark@prazen.co"
+
+1. 저장소 만들기
+git init  
+
+2. 원격 저장소 연결
+git remote add origin https://github.com/prazen-git/ARG24-1.git
+git remote set-url origin git@github.com:prazen-git/ARG24-1.git
+
+3. 업로드 파일 추가
+git add . 
+
+4. commit
+git commit -m "주석"
+
+5. 브랜치 네임 변경
+git branch -M main
+
+6. 업로드
+git push -u origin main
+
+7. ssh key 등록
+ssh-keygen -t rsa -b 4096 -C "email@example.com"
+eval $(ssh-agent)
+ssh-add .ssh/id_rsa
+cat ~/.ssh/id_rsa.pub
+ : SSH키 복사후 Github page->Settings->SSH keys-> SSH키 붙여넣고 등록
+
+/cts large size 문제로 git push 에러 발생
+/device
+
+commit 취소
+①번까지 모두 취소: 커밋을 취소하고, 모든 변경사항을 다 없애버린다. (완전한 초기화)
+git reset --hard HEAD~
+
+②번까지만 취소: 커밋을 취소하고, add한 것도 없던 일로 한다. (위에서 설명한 방법)
+git reset HEAD~
+
+③번만 취소: 커밋만 취소하고, add한 파일들은 그대로 둔다. (딱 커밋만 취소하기)
+git reset --soft HEAD~
+
+폴더 삭제
+find . -type d -name ".git" -exec rm -rf {} \;
+
+
+git lfs
+// large size file tracking
+git lfs track "*.filetype*"
