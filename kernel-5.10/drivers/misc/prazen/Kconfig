@@ -1,0 +1,11 @@
+#
+# Optics Engine Driver
+#
+
+config AR_IO
+        bool "Prazen System I/O Setup"
+        default y
+
+config AR_SY060
+        bool "SeeYA 0.6' Panel"
+        default y
