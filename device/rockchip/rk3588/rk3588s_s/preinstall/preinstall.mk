@@ -1,0 +1,3 @@
+PRODUCT_PACKAGES += FileManager
+PRODUCT_PACKAGES += ObjectsDetector
+PRODUCT_PACKAGES += MXPlayer
