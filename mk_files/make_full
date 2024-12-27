@@ -1,0 +1,3 @@
+source build/envsetup.sh
+lunch rk3588s_s-userdebug
+./build.sh -cAUCKu

@@ -1,0 +1,5 @@
+source build/envsetup.sh
+lunch rk3588s_s-userdebug
+mmm $1
+echo "mmm $1"
+./mkimage.sh

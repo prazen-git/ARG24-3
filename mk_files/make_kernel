@@ -1,0 +1,18 @@
+# check pass argument
+BUILD_CLEAN=""
+while getopts "c" arg
+do
+    case $arg in
+        c)
+            BUILD_CLEAN=true
+            ;;
+    esac
+done
+
+source build/envsetup.sh
+lunch rk3588s_s-userdebug
+if [ "$BUILD_CLEAN" = true ] ; then
+	./build.sh -cCK
+else
+	./build.sh -CK
+fi
