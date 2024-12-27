@@ -1,0 +1,159 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright (c) 2024 Prazen Co., Ltd.
+ *
+ */
+
+
+/ {
+	arg_io {
+		status = "okay";
+		compatible = "prazen,arg24io";
+
+		panel_reset = <&gpio4 RK_PB3 GPIO_ACTIVE_HIGH>;
+		lt_reset = <&gpio4 RK_PB3 GPIO_ACTIVE_HIGH>;	
+	};
+};
+
+// [feature development] mspark, 24.08.06, Add SeeYA OLED 0.6' Panel dts
+&i2c3 {
+	sy060: sy060@4c {
+		status = "okay";
+		compatible = "seeya,sy060";
+		reg = <0x4c>;
+		reset-gpio = <&gpio4 RK_PB3 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+// [feature development] mspark, 24.08.21, Add Light / Proximity Sensor (RPR-0521)
+&i2c5 {
+	ls_rpr0521: light@38 {
+		compatible = "ls_rpr0521";
+		status = "okay";
+		reg = <0x38>;
+		type = <SENSOR_TYPE_LIGHT>;
+		irq_enable = <0>;
+		als_measure_time = <100>;
+		als_threshold_high = <100>;
+		als_threshold_low = <10>;
+		als_ctrl_gain = <0>; /* 0:x1 1:x2 2:x64 3:x128 */
+		ps_led_current = <2>; /* 0:25mA 1:50mA 2:100mA 3:200mA*/		
+		poll_delay_ms = <100>;
+	};
+
+	ps_rpr0521: proximity@38 {
+		compatible = "ps_rpr0521";
+		status = "okay";
+		reg = <0x38>;
+		type = <SENSOR_TYPE_PROXIMITY>;
+		irq_enable = <0>;
+		ps_measure_time = <100>;
+		ps_threshold_high = <0x200>;
+		ps_threshold_low = <0x100>;
+		ps_ctrl_gain = <0>; /* 0:x1 1:x2 2:x4 */
+		ps_led_current = <2>; /* 0:25mA 1:50mA 2:100mA 3:200mA*/
+		als_ctrl_gain = <0>; /* 0:x1 1:x2 2:x64 3:x128 */	
+		poll_delay_ms = <100>;
+	};
+};
+
+&pinctrl {
+	cam {
+		mipidcphy_pwr: mipidcphy-pwr {
+			rockchip,pins =
+				/* camera power en */
+				<1 RK_PA1 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+
+	charger {
+		charger_ok: charger_ok {
+			rockchip,pins = <0 RK_PD5 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+	};
+
+	headphone {
+		hp_det: hp-det {
+			rockchip,pins = <1 RK_PD0 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+
+	hym8563 {
+		rtc_int: rtc-int {
+			rockchip,pins = <0 RK_PB0 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+	};
+
+	sdio-pwrseq {
+		wifi_enable_h: wifi-enable-h {
+			rockchip,pins = <0 RK_PC7 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+	};
+
+	sdmmc {
+		sd_s0_pwr: sd-s0-pwr {
+			rockchip,pins = <4 RK_PB4 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+	};
+
+	sensor {
+		mpu6500_irq_gpio: mpu6500-irq-gpio {
+			rockchip,pins = <1 RK_PD3 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+
+		mh248_irq_gpio: mh248-irq-gpio {
+			rockchip,pins = <0 RK_PD3 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+	};
+
+	touch {
+		touch_gpio: touch-gpio {
+			rockchip,pins =
+				<1 RK_PA6 RK_FUNC_GPIO &pcfg_pull_up>,
+				<1 RK_PB5 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+
+	usb {
+		vcc5v0_host_en: vcc5v0-host-en {
+			rockchip,pins = <4 RK_PB5 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+		vcc5v0_usb_en: vcc5v0-usb-en {
+			rockchip,pins = <1 RK_PA4 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+
+	usb-typec {
+		usbc0_int: usbc0-int {
+			rockchip,pins = <0 RK_PC4 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+	};
+
+	wireless-bluetooth {
+		uart7_gpios: uart7-gpios {
+			rockchip,pins = <3 RK_PC2 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+
+		bt_reset_gpio: bt-reset-gpio {
+			rockchip,pins = <0 RK_PD4 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+
+		bt_wake_gpio: bt-wake-gpio {
+			rockchip,pins = <0 RK_PC6 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+
+		bt_irq_gpio: bt-irq-gpio {
+			rockchip,pins = <0 RK_PC5 RK_FUNC_GPIO &pcfg_pull_down>;
+		};
+	};
+
+	wireless-wlan {
+		wifi_host_wake_irq: wifi-host-wake-irq {
+			rockchip,pins = <0 RK_PA0 RK_FUNC_GPIO &pcfg_pull_down>;
+		};
+
+		wifi_poweren_gpio: wifi-poweren-gpio {
+			rockchip,pins = <0 RK_PC7 RK_FUNC_GPIO &pcfg_pull_up>;
+		};
+	};
+};
