@@ -29,6 +29,15 @@
 
 #define MAX_BRIGHTNESS		(0x7A)
 
+typedef enum
+{
+	flip_normal,
+	flip_horizontal,
+	flip_vertical,
+	flip_all,
+	flip_max
+} FLIP_DATA;
+
 //////////////////////////////////////////////////////////////////////////////
 struct sy060_data {
 	struct i2c_client *client;
@@ -156,6 +165,27 @@ static int sy060_brightness(struct i2c_client *client, u8 val)
 	return 1;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+static int sy060_rotate(struct i2c_client *client, u8 val)
+{
+	u8 flip = 0x00;
+		
+	if (val > flip_max) {
+		printk("[Panel] set rotate error %d\n", val);
+		return 0;
+	}
+	printk("[Panel] set rotate = %d\n", val);
+
+	switch (val) {
+		case flip_horizontal:	flip = 0x02;	break;
+		case flip_vertical:		flip = 0x01;	break;
+		case flip_all:			flip = 0x03;	break;
+        default:    break;
+	}
+	sy060_write(client, SY_FLIP_REG, flip);
+	return 1;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
 static ssize_t sy060_disp_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
@@ -199,12 +229,35 @@ static ssize_t sy060_brightness_store(struct device *dev, struct device_attribut
 	return count;
 }
 static DEVICE_ATTR(brightness, 0660, sy060_brightness_show, sy060_brightness_store);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////	
+static ssize_t sy060_rotate_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	if (buf == NULL)
+		return 0;
+	printk("[Panel] Get Brightness %d\n", s06_cfg.brightness);
+	return sprintf(buf, "%d\n", s06_cfg.brightness);
+}
+
+static ssize_t sy060_rotate_store(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+{
+	struct i2c_client *client = to_i2c_client(dev);
+	int val = _atoi(buf);
+	if (buf == NULL)
+		return count;
+	printk("[Panel] Set Rotate %d\n", val);
+	sy060_rotate(client, val);
+	s06_cfg.brightness = val;
+	return count;
+}
+static DEVICE_ATTR(rotate, 0660, sy060_rotate_show, sy060_rotate_store);
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 static struct attribute *sy060_attributes[] = {
 	&dev_attr_display.attr,
-	&dev_attr_brightness.attr,		
+	&dev_attr_brightness.attr,	
+	&dev_attr_rotate.attr,	
 	NULL
 };
 
@@ -309,7 +362,7 @@ static int sy060_probe(struct i2c_client *client, const struct i2c_device_id *id
 
 	memset(&s06_cfg, 0, sizeof(s06_cfg));
 	
-	s06_cfg.display = 0;
+	s06_cfg.display = 1;
 	s06_cfg.brightness = 4;
 
 	sy060_init_client(client);

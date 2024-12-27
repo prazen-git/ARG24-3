@@ -33,7 +33,7 @@
 
 static DEFINE_MUTEX(sysfs_lock); 
 
-#define PATH_PANEL		"/sys/bus/i2c/devices/1-0038/sleep"
+#define PATH_PANEL		"/sys/bus/i2c/devices/3-004c/display"
 
 // gpio port
 typedef struct 
@@ -57,52 +57,34 @@ int _atoi(const char *s)
 	return i;
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct file *file_open(char *path,int flag,int mode)
+void ar_drv_sleep(char *path, int val)
 {
+	char buf[4];
+	mm_segment_t fs;
 	struct file *fp;
 
-	fp=filp_open(path, flag, mode);
-	if (IS_ERR(fp) || !fp->f_op) {
-        return NULL;
-	} else {
-        return fp;
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-int file_read(struct file *fp, char *buf, int readlen)
-{
-	if (fp->f_op && fp->f_op->read) {
-		return fp->f_op->read(fp, buf, readlen, &fp->f_pos);
-	} else {
-            return -1;
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-int file_write(struct file *fp, char *buf, int writelen)
-{
-	int ret;
-	
-	mm_segment_t old_fs = get_fs();
+	fs = get_fs();
 	set_fs(KERNEL_DS);
-	if (fp->f_op && fp->f_op->read) {
-		ret = fp->f_op->write(fp, buf, writelen, &fp->f_pos);
-	} else {
-		ret = -1;	
+	
+	fp = filp_open(path, O_RDWR, 0664);
+	if (IS_ERR(fp)) {
+		printk("%s: file open error\n", __FUNCTION__);
+        return;
 	}
-	set_fs(old_fs);
-	return ret;
+	
+	if (fp) {
+		loff_t f_pos = 0;
+		int len = sizeof(buf);
+		sprintf(buf, "%d\n", val);
+		if (vfs_write(fp, buf, len, &f_pos) != len) {
+			printk("%s: wrtie error\n", __FUNCTION__);
+		}
+		filp_close(fp, NULL);
+		set_fs(fs);	
+	}
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-int file_close(struct file *fp)
-{
-	filp_close(fp, NULL);
-	return 0;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 #define AR_IO_RW(_name, gpio) \
@@ -198,22 +180,9 @@ static int ar_io_parse_dt(struct platform_device *pdev)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void ar_drv_sleep(char *path, int sleep)
+static void arg24_sleep(int val)
 {
-	char buf[4];
-	struct file *fp = file_open(path, O_RDWR, 0777);
-	if (!fp)
-		return;
-
-	sprintf(buf, "%d\n", sleep);	
-	file_write(fp, buf, sizeof(buf));
-	file_close(fp);	
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-static void arg24_sleep(int sleep)
-{
-	ar_drv_sleep(PATH_PANEL, sleep);
+	ar_drv_sleep(PATH_PANEL, val ? 0 : 1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

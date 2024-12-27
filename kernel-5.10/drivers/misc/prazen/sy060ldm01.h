@@ -8,11 +8,12 @@
  *	published by the Free Software Foundation.
  *
  */
-#ifndef _DRV_SY103_H_
-#define _DRV_SY103_H_
+#ifndef _DRV_SY060_H_
+#define _DRV_SY060_H_
 
 #define SY_DISP_OFF_REG			0x2800
 #define SY_DISP_ON_REG			0x2900
+#define SY_FLIP_REG				0x3600
 #define SY_BRIGHTNESS_REG		0x5100
 
-#endif	//_DRV_SY103_H_
+#endif	//_DRV_SY060_H_
