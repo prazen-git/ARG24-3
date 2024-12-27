@@ -1,0 +1,15 @@
+cc_binary {
+    name: "armon",
+    srcs: ["armon.c"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+        "-Wno-unused-variable",
+    ],	
+	shared_libs: [
+		"liblog",
+		"libutils",
+		"libcutils",
+    ],
+}
